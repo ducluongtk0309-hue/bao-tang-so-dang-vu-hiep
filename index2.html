@@ -1,0 +1,497 @@
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Thượng tướng Đặng Vũ Hiệp — Di Sản Người Lính Tây Nguyên</title>
+  <meta name="description" content="Trang di sản kỹ thuật số tôn vinh cuộc đời, sự nghiệp binh nghiệp và di sản cách mạng của Thượng tướng Đặng Vũ Hiệp (1928-2008).">
+  <link rel="shortcut icon" href="assets/dangvuhiep/assets/images/favicon3.png" />
+
+  <!-- Google Fonts -->
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Playfair+Display:ital,wght@0,400;0,600;0,700;0,800;1,400&family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+
+  <!-- FontAwesome Icons CDN -->
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css">
+
+  <!-- Original CSS Stylesheet -->
+  <link rel="stylesheet" href="assets/dangvuhiep/css/main.css?t=2">
+
+  <!-- CDNs for Three.js & GSAP -->
+  <script src="assets/dangvuhiep/vendor/three.min.js"></script>
+  <script src="assets/dangvuhiep/vendor/OrbitControls.js"></script>
+  <script src="assets/dangvuhiep/vendor/gsap.min.js"></script>
+
+  <style>
+    /* ================= WIDGET NÚT BẬT/TẮT NHẠC NỀN ================= */
+    #music-widget {
+      position: fixed;
+      bottom: 30px;
+      right: 30px;
+      z-index: 99999;
+      display: flex;
+      align-items: center;
+      gap: 12px;
+      background: rgba(8, 12, 20, 0.85);
+      border: 1px solid rgba(201, 168, 76, 0.5);
+      padding: 6px 16px 6px 8px;
+      border-radius: 50px;
+      backdrop-filter: blur(10px);
+      -webkit-backdrop-filter: blur(10px);
+      box-shadow: 0 8px 30px rgba(0, 0, 0, 0.7);
+      cursor: pointer;
+      user-select: none;
+      transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+    }
+
+    #music-widget:hover {
+      border-color: #C9A84C;
+      box-shadow: 0 0 25px rgba(201, 168, 76, 0.4);
+      transform: translateY(-2px);
+    }
+
+    .music-btn-icon {
+      width: 40px;
+      height: 40px;
+      border-radius: 50%;
+      background: rgba(201, 168, 76, 0.15);
+      border: 1px solid rgba(201, 168, 76, 0.6);
+      color: #C9A84C;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 1.15rem;
+      transition: all 0.3s ease;
+    }
+
+    /* Hiệu ứng gợn sóng khi nhạc đang bật */
+    #music-widget.playing .music-btn-icon {
+      background: #C9A84C;
+      color: #080C14;
+      animation: pulseGold 2s infinite ease-in-out;
+    }
+
+    @keyframes pulseGold {
+      0% { transform: scale(1); box-shadow: 0 0 0 0 rgba(201, 168, 76, 0.6); }
+      70% { transform: scale(1.05); box-shadow: 0 0 0 10px rgba(201, 168, 76, 0); }
+      100% { transform: scale(1); box-shadow: 0 0 0 0 rgba(201, 168, 76, 0); }
+    }
+
+    .music-btn-label {
+      display: flex;
+      flex-direction: column;
+      gap: 2px;
+    }
+
+    .music-btn-label .music-status {
+      font-family: 'Inter', sans-serif;
+      font-size: 13px;
+      font-weight: 700;
+      color: #E8DCC8;
+      letter-spacing: 0.03em;
+    }
+
+    .music-btn-label .music-desc {
+      font-family: 'Inter', sans-serif;
+      font-size: 10px;
+      color: rgba(201, 168, 76, 0.85);
+      letter-spacing: 0.05em;
+      text-transform: uppercase;
+    }
+
+    /* Đổi màu viền nếu file nhạc không tìm thấy */
+    #music-widget.error {
+      border-color: #ff5252 !important;
+    }
+    #music-widget.error .music-btn-icon {
+      background: rgba(255, 82, 82, 0.2);
+      border-color: #ff5252;
+      color: #ff5252;
+    }
+
+    @media (max-width: 768px) {
+      #music-widget {
+        bottom: 20px;
+        right: 20px;
+        padding: 5px;
+      }
+      .music-btn-label {
+        display: none; /* Thu gọn trên mobile */
+      }
+    }
+  </style>
+</head>
+<body>
+  <!-- HÌNH NỀN PHÒNG TRANH 3D ĐỘNG FULL MÀN HÌNH -->
+  <iframe src="https://baotangdvh.vercel.app/" style="position: fixed; top: 0; left: 0; width: 100vw; height: 100vh; border: none; z-index: -1; pointer-events: none;" allowfullscreen></iframe>
+
+  <!-- Preloader -->
+  <div id="preloader" style="position:fixed; inset:0; z-index:99999; background:#080C14; display:flex; flex-direction:column; align-items:center; justify-content:center; transition: opacity 0.5s ease;">
+    <div style="width:50px; height:50px; border:3px solid rgba(201,168,76,0.1); border-top-color:#C9A84C; border-radius:50%; animation:spin 1s linear infinite; margin-bottom:20px;"></div>
+    <div style="font-family:'Playfair Display', serif; color:#E8DCC8; font-size:1.2rem; letter-spacing:0.1em;">ĐANG TẢI DI SẢN...</div>
+    <style>@keyframes spin { to { transform: rotate(360deg); } }</style>
+  </div>
+
+  <!-- NAVIGATION -->
+  <nav id="navbar">
+    <a href="#" class="nav-brand">
+      <div class="nav-brand-icon">ĐVH</div>
+      <div class="nav-brand-text">
+        ĐẶNG VŨ HIỆP
+        <span>Thượng tướng • Anh hùng LLVTND</span>
+      </div>
+    </a>
+    <ul class="nav-links">
+      <li><a href="#hero" class="active">Trang Chủ</a></li>
+      <li><a href="#biography">Cuộc đời binh nghiệp</a></li>
+      <li><a href="#legacy">Di sản & Kỷ vật</a></li>
+      <li><a href="#battles">Sa bàn trận đánh</a></li>
+      <li><a href="#gallery">Thư viện ảnh</a></li>
+    </ul>
+  </nav>
+
+  <!-- HERO SECTION -->
+  <header id="hero" style="position: relative; width: 100vw; height: 100vh; overflow: hidden; margin: 0; padding: 0;">
+    <iframe src="https://baotangdvh.vercel.app/" style="width: 100%; height: 100%; border: none;"></iframe>
+
+    <a href="#biography" style="position: absolute; bottom: 40px; left: 50%; transform: translateX(-50%); background-color: #C9A84C; color: #080C14; padding: 15px 35px; border-radius: 50px; font-family: 'Inter', sans-serif; font-weight: 700; font-size: 16px; text-decoration: none; box-shadow: 0 5px 20px rgba(0,0,0,0.8); z-index: 100; transition: transform 0.3s ease;">
+      <i class="fa-solid fa-arrow-down" style="margin-right: 8px;"></i> Khám phá Bảo tàng
+    </a>
+  </header>
+
+  <div class="divider"></div>
+
+  <!-- BIOGRAPHY / TIMELINE -->
+  <section id="biography">
+    <div class="container">
+      <div class="biography-intro reveal">
+        <div class="biography-text">
+          <div class="section-label">Cuộc Đời Binh Nghiệp</div>
+          <h2 class="section-title">Hành Trình Qua Khói Lửa</h2>
+          <p>
+            Thượng tướng Đặng Vũ Hiệp (1928–2008) là một nhà hoạt động quân sự xuất sắc, người chiến sĩ cách mạng kiên trung đi qua hai cuộc kháng chiến vĩ đại của dân tộc. Hơn mười năm ròng rã gắn bó với chiến trường Tây Nguyên ác liệt trong vai trò Chính ủy Mặt trận Tây Nguyên (Cánh Nam B3), ông đã cùng các tướng lĩnh chỉ huy nhiều chiến dịch lịch sử.
+          </p>
+          <p>
+            Không chỉ là một vị chỉ huy dũng cảm nơi trận mạc, ông còn là người trân trọng từng giọt máu của người lính trận, đồng cam cộng khổ với chiến sĩ và dành trọn cả cuộc đời hòa bình để chăm lo cho chính sách hậu phương quân đội cũng như nạn nhân chất độc da cam.
+          </p>
+        </div>
+        <div class="biography-portrait">
+          <div class="portrait-frame">
+            <img src="assets/dangvuhiep/assets/images/Anhcuocdoibinhnghiep 2.png" alt="Chân dung Thượng tướng Đặng Vũ Hiệp" onerror="this.src='assets/dangvuhiep/assets/images/1966.png'">
+            <div class="portrait-badge">
+              Thượng tướng Đặng Vũ Hiệp<br>
+              (1928 - 2008)
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <div class="timeline" id="timeline-container"></div>
+    </div>
+  </section>
+
+  <div class="divider"></div>
+
+  <!-- LEGACY / DIGITAL MUSEUM -->
+  <section id="legacy">
+    <div class="container">
+      <div class="museum-intro reveal">
+        <div>
+          <div class="section-label">Bảo tàng Số hóa</div>
+          <h2 class="section-title">Di Sản & Kỷ Vật</h2>
+          <p class="section-subtitle">
+            Không gian số hóa lưu trữ những huân chương cao quý, hình ảnh chân dung qua các thời kỳ và các bản tài liệu quét chiến trường nguyên bản.
+          </p>
+        </div>
+
+        <div class="room-tabs" id="room-tabs">
+          <button class="room-tab active" data-room="all">Tất cả phòng</button>
+          <button class="room-tab" data-room="1">Phòng 1: Chân dung & Huân chương</button>
+          <button class="room-tab" data-room="2">Phòng 2: Khoảnh khắc Lịch sử</button>
+          <button class="room-tab" data-room="3">Phòng 3: Tài liệu số hóa</button>
+        </div>
+      </div>
+
+      <div class="museum-grid" id="museum-grid"></div>
+
+      <div class="legacy-stories reveal">
+        <div class="story-card">
+          <div class="story-icon"><i class="fa-solid fa-umbrella text-gold"></i></div>
+          <h3 class="story-title">“Bố không phải là cái ô...”</h3>
+          <p class="story-text">
+            Lời dạy bảo của Thượng tướng luôn khắc sâu trong lòng các con: tự lập và phấn đấu bằng chính đôi chân của mình. Mặc dù ông biền biệt xa gia đình, hiếm hoi lắm mới tranh thủ về thăm nhà và “lần nào cũng vội”, nhưng những lá thư chiến trường gửi về của ông luôn vương mùi khói súng và đạn bom, chứa đầy lời răn dạy thấm thía.
+          </p>
+          <div class="story-quote">
+            “Bố mẹ chỉ nuôi con ăn học, vào đời tự con phấn đấu. Bố không phải là cái ô để che, không phải là cái thang để con bước...”
+          </div>
+        </div>
+
+        <div class="story-card">
+          <div class="story-icon"><i class="fa-solid fa-person-breastfeeding text-gold"></i></div>
+          <h3 class="story-title">Danh hiệu “Bà mẹ Việt Nam Anh hùng”</h3>
+          <p class="story-text">
+            Năm 1977, Tướng Đặng Vũ Hiệp trở về sau chiến thắng nhưng lòng bà nội héo hon vì người con út là liệt sĩ Đặng Vũ Tân chưa tìm thấy hài cốt. Câu nói trách móc nhói lòng của mẹ: <em>“Anh làm tướng mà không tìm được mộ em về cho mẹ...”</em> đã thôi thúc ông cùng Tổng cục Chính trị đề xuất xây dựng Đề án chính sách đặc biệt này.
+          </p>
+          <div class="story-quote">
+            Chính từ câu trách cứ của mẹ, Đề án “Bà mẹ Việt Nam Anh hùng” đã ra đời năm 1994, vinh danh hàng vạn người mẹ vĩ đại hiến dâng con mình cho Tổ quốc.
+          </div>
+        </div>
+
+        <div class="story-card">
+          <div class="story-icon"><i class="fa-solid fa-shield-halved text-gold"></i></div>
+          <h3 class="story-title">Chiến thuật “Bám thắt lưng địch mà đánh”</h3>
+          <p class="story-text">
+            Trước đối thủ mới cực kỳ hiện đại là Sư đoàn Kỵ binh bay số 1 Mỹ ở thung lũng Ia Đrăng năm 1965, Tướng Đặng Vũ Hiệp cùng Bí thư Chu Huy Mân đã thảo luận sâu sắc cách khắc chế phi pháo Mỹ. Từ câu nói của một tiểu đội trưởng ở chiến dịch trước đó, phương châm “bám thắt lưng địch” đã trở thành chiến thuật tối ưu, đánh giáp lá cà vô hiệu hóa hỏa lực hạng nặng.
+          </p>
+          <div class="story-quote">
+            “Nắm thắt lưng địch mà đánh!” — Khẩu lệnh nổi tiếng của người tiểu đội trưởng ở trận Vinh Huy, được Thượng tướng Nguyễn Chí Thanh đúc kết thành phương châm tác chiến “Bám thắt lưng địch mà đánh” cho toàn miền.
+          </div>
+        </div>
+
+        <div class="battles-header-card reveal">
+          <div class="section-label">Sa Bàn Trận Địa</div>
+          <h2 class="section-title">Chiến Trường Tây Nguyên &amp; Trận Ia Đrăng 1965</h2>
+          <p class="section-subtitle">
+            Sa bàn 3D mô phỏng chiến dịch Plei Me – Ia Đrăng năm 1965. Trực quan hóa địa hình thung lũng Ia Đrăng dưới chân núi Chư Pông, các điểm đáp trực thăng LZ X-Ray, LZ Albany và các mũi tiến công giữa Quân giải phóng và Sư đoàn Kỵ binh bay số 1 Mỹ.
+          </p>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- BATTLES & IFRAME SA BÀN -->
+  <section id="battles">
+    <div class="container">
+      <div class="saban-iframe-wrap reveal">
+        <iframe
+          id="saban-iframe"
+          src="https://saban-media21.vercel.app/"
+          title="Sa Bàn 3D Trận Ia Đrăng 1965"
+          allowfullscreen
+          allow="fullscreen; autoplay"
+          loading="lazy"
+        ></iframe>
+        <a
+          href="https://saban-media21.vercel.app/"
+          target="_blank"
+          rel="noopener noreferrer"
+          class="saban-fullscreen-link"
+        >
+          <i class="fa-solid fa-up-right-and-down-left-from-center"></i>
+          Mở toàn màn hình
+        </a>
+      </div>
+    </div>
+  </section>
+
+  <div class="divider"></div>
+
+  <!-- GALLERY -->
+  <section id="gallery">
+    <div class="container">
+      <div class="gallery-header reveal">
+        <div class="section-label">Thư Viện Ảnh</div>
+        <h2 class="section-title">Kho Lưu Trữ Hình Ảnh</h2>
+        <p class="section-subtitle">
+          Tập hợp các bức ảnh lịch sử chân thực về cuộc đời Thượng tướng Đặng Vũ Hiệp qua các giai đoạn, từ thời kháng chiến chống Pháp, chống Mỹ, đến công tác hòa bình và các ảnh phục dựng AI đặc biệt.
+        </p>
+      </div>
+
+      <div class="gallery-filters" id="gallery-filters">
+        <button class="filter-btn active" data-filter="all">Tất cả ảnh</button>
+        <button class="filter-btn" data-filter="1945">Thập niên 1945 - 1954</button>
+        <button class="filter-btn" data-filter="1960">Thập niên 1960 - 1974</button>
+        <button class="filter-btn" data-filter="1975">Năm thắng lợi 1975</button>
+        <button class="filter-btn" data-filter="post-1975">Sau năm 1975</button>
+        <button class="filter-btn" data-filter="ai">Phục dựng AI</button>
+      </div>
+
+      <div class="gallery-masonry" id="gallery-masonry"></div>
+    </div>
+  </section>
+
+  <!-- LIGHTBOX OVERLAY -->
+  <div id="lightbox">
+    <button class="lightbox-close"><i class="fa-solid fa-xmark"></i></button>
+    <button class="lightbox-nav lightbox-prev"><i class="fa-solid fa-chevron-left"></i></button>
+    <button class="lightbox-nav lightbox-next"><i class="fa-solid fa-chevron-right"></i></button>
+    <div class="lightbox-inner">
+      <img src="" alt="Hình phóng to" class="lightbox-img" id="lightbox-img">
+      <div class="lightbox-caption">
+        <h3 id="lightbox-title">Tiêu đề ảnh</h3>
+        <p id="lightbox-desc">Mô tả chi tiết về bức ảnh này.</p>
+      </div>
+    </div>
+  </div>
+
+  <!-- FOOTER -->
+  <footer id="footer">
+    <div class="container">
+      <div class="footer-inner">
+        <div class="footer-brand">
+          <div class="footer-gold-line"></div>
+          <h3>Thượng tướng Đặng Vũ Hiệp</h3>
+          <p>
+            Nguyên Thứ trưởng Bộ Quốc phòng, nguyên Phó Chủ nhiệm Tổng cục Chính trị Quân đội nhân dân Việt Nam. Anh hùng Lực lượng vũ trang nhân dân (truy tặng năm 2023).
+          </p>
+          <p>Trang di sản kỹ thuật số vinh danh người lính Mặt trận Tây Nguyên kiên trung, anh dũng.</p>
+        </div>
+
+        <div class="footer-col">
+          <h4>Chương mục chính</h4>
+          <ul>
+            <li><a href="#hero">Trang chủ</a></li>
+            <li><a href="#biography">Cuộc đời binh nghiệp</a></li>
+            <li><a href="#legacy">Di sản & Kỷ vật</a></li>
+            <li><a href="#battles">Sa bàn trận đánh 3D</a></li>
+            <li><a href="#gallery">Thư viện hình ảnh</a></li>
+          </ul>
+        </div>
+
+        <div class="footer-col">
+          <h4>Nguồn tư liệu sử dụng</h4>
+          <ul>
+            <li>Ký ức Tây Nguyên — Hồi ký Đặng Vũ Hiệp (NXB QĐND, 2002)</li>
+            <li>Lịch sử Chiến dịch Plei Me – Ia Đrăng 1965</li>
+            <li>Tư liệu & Hình ảnh gia đình Thượng tướng cung cấp</li>
+            <li>Báo Quân đội Nhân dân & Báo Tuổi trẻ</li>
+          </ul>
+        </div>
+      </div>
+
+      <div class="footer-bottom">
+        <p>&copy; 2026 Trang Di Sản Kỹ Thuật Số Thượng Tướng Đặng Vũ Hiệp.</p>
+        <p>Phiên bản tiếng Việt phục vụ bảo tàng số.</p>
+      </div>
+    </div>
+  </footer>
+
+  <!-- Scripts gốc của trang web -->
+  <script>
+    window.ASSET_BASE = 'assets/dangvuhiep/';
+  </script>
+  <script src="assets/dangvuhiep/assets/data/content.js?t=4"></script>
+  <script src="assets/dangvuhiep/js/main.js?t=2"></script>
+
+  <!-- ================= HỆ THỐNG ÂM THANH CHUẨN ================= -->
+  <audio id="bg-music" loop preload="auto">
+    <!-- 1. Đường dẫn trực tiếp từ thư mục assets -->
+    <source src="assets/nhac-nen-mua-do.mp3" type="audio/mpeg">
+    
+    <!-- 2. Dự phòng: Nếu trên Windows bị ẩn đuôi file và thành .mp3.mp3 -->
+    <source src="assets/nhac-nen-mua-do.mp3.mp3" type="audio/mpeg">
+
+    <!-- 3. Dự phòng: Nếu nằm trong assets/dangvuhiep/assets/ -->
+    <source src="assets/dangvuhiep/assets/nhac-nen-mua-do.mp3" type="audio/mpeg">
+    
+    Trình duyệt không hỗ trợ phát âm thanh.
+  </audio>
+
+  <!-- Widget Nút Bật/Tắt Nhạc Nền -->
+  <div id="music-widget" title="Bấm để Bật hoặc Tắt nhạc nền">
+    <div class="music-btn-icon">
+      <i id="music-icon" class="fa-solid fa-volume-xmark"></i>
+    </div>
+    <div class="music-btn-label">
+      <span class="music-status" id="music-status">Bật nhạc</span>
+      <span class="music-desc" id="music-desc">Mùa đỏ</span>
+    </div>
+  </div>
+
+  <script>
+    (function () {
+      const music = document.getElementById("bg-music");
+      const widget = document.getElementById("music-widget");
+      const icon = document.getElementById("music-icon");
+      const statusText = document.getElementById("music-status");
+      const descText = document.getElementById("music-desc");
+
+      let isPlaying = false;
+      let hasError = false;
+
+      // Đặt âm lượng vừa phải, trang nghiêm (40%)
+      music.volume = 0.4;
+
+      // Xử lý phát nhạc
+      function startMusic() {
+        if (hasError) return;
+
+        const playPromise = music.play();
+        if (playPromise !== undefined) {
+          playPromise.then(() => {
+            isPlaying = true;
+            widget.classList.add("playing");
+            icon.className = "fa-solid fa-volume-high";
+            statusText.textContent = "Tắt nhạc";
+            descText.textContent = "Đang phát";
+          }).catch(err => {
+            console.warn("Chính sách trình duyệt: cần người dùng tương tác trước khi phát.", err);
+            isPlaying = false;
+            widget.classList.remove("playing");
+            icon.className = "fa-solid fa-volume-xmark";
+            statusText.textContent = "Bật nhạc";
+            descText.textContent = "Mùa đỏ";
+          });
+        }
+      }
+
+      // Xử lý dừng nhạc
+      function pauseMusic() {
+        music.pause();
+        isPlaying = false;
+        widget.classList.remove("playing");
+        icon.className = "fa-solid fa-volume-xmark";
+        statusText.textContent = "Bật nhạc";
+        descText.textContent = "Mùa đỏ";
+      }
+
+      // Khi người dùng bấm thẳng vào nút widget
+      widget.addEventListener("click", function (e) {
+        e.stopPropagation();
+        if (hasError) {
+          alert("Không tìm thấy file nhạc 'nhac-nen-mua-do.mp3' trong thư mục 'assets/'. Hãy kiểm tra lại thư mục của bạn.");
+          return;
+        }
+
+        if (isPlaying) {
+          pauseMusic();
+        } else {
+          startMusic();
+        }
+      });
+
+      // Tự động kích hoạt nhạc khi người dùng click hoặc cuộn trang lần đầu
+      function handleFirstInteraction(e) {
+        if (e.target && e.target.closest && e.target.closest("#music-widget")) {
+          return; // Nếu đã click trúng widget thì nút tự xử lý
+        }
+        if (!isPlaying && !hasError) {
+          startMusic();
+        }
+        removeInteractionListeners();
+      }
+
+      function removeInteractionListeners() {
+        window.removeEventListener("click", handleFirstInteraction);
+        window.removeEventListener("scroll", handleFirstInteraction);
+        window.removeEventListener("keydown", handleFirstInteraction);
+      }
+
+      window.addEventListener("click", handleFirstInteraction, { once: true });
+      window.addEventListener("scroll", handleFirstInteraction, { once: true });
+      window.addEventListener("keydown", handleFirstInteraction, { once: true });
+
+      // Cảnh báo nếu file nhạc không tồn tại
+      music.addEventListener("error", function () {
+        hasError = true;
+        widget.classList.add("error");
+        icon.className = "fa-solid fa-triangle-exclamation";
+        statusText.textContent = "Lỗi file nhạc";
+        descText.textContent = "Kiểm tra assets/";
+        console.error("Lỗi: Không tìm thấy file 'nhac-nen-mua-do.mp3' trong thư mục assets.");
+      }, true);
+    })();
+  </script>
+</body>
+</html>
