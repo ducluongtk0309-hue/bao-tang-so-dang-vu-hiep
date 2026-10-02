@@ -115,11 +115,11 @@
         padding: 5px;
       }
       .music-btn-label {
-        display: none;
+        display: none; 
       }
     }
 
-    /* ================= CSS CHO KHUNG BẢO TÀNG 3D ================= */
+    /* ================= CSS CHO KHUNG BẢO TÀNG 3D VÀ MOBILE FALLBACK ================= */
     .bao-tang-3d-wrapper {
         width: 100%;
         max-width: 1400px;
@@ -140,6 +140,39 @@
         border: none;
     }
 
+    /* Giao diện thay thế dành riêng cho điện thoại */
+    .mobile-3d-fallback {
+        display: none; /* Mặc định ẩn trên máy tính */
+        width: 100%;
+        height: 100%;
+        flex-direction: column;
+        align-items: center;
+        justify-content: center;
+        background: linear-gradient(rgba(5,5,5,0.8), rgba(5,5,5,0.9)), url('assets/dangvuhiep/assets/images/Anhcuocdoibinhnghiep 2.png') center/cover;
+        text-align: center;
+        padding: 20px;
+    }
+
+    .btn-open-3d {
+        background-color: #C9A84C;
+        color: #080C14;
+        padding: 15px 40px;
+        border-radius: 50px;
+        font-family: 'Inter', sans-serif;
+        font-weight: 700;
+        font-size: 16px;
+        text-decoration: none;
+        box-shadow: 0 5px 20px rgba(201, 168, 76, 0.4);
+        margin-top: 20px;
+        display: inline-block;
+        transition: transform 0.2s ease, box-shadow 0.2s ease;
+    }
+
+    .btn-open-3d:hover {
+        transform: translateY(-2px);
+        box-shadow: 0 8px 25px rgba(201, 168, 76, 0.6);
+    }
+
     @media (max-width: 992px) {
         .bao-tang-3d-wrapper {
             height: 600px;
@@ -148,10 +181,21 @@
         }
     }
 
+    /* Kích hoạt khi xem trên Điện thoại */
     @media (max-width: 768px) {
         .bao-tang-3d-wrapper {
-            height: 450px;
+            height: 400px;
             margin: 20px auto;
+        }
+        
+        /* Ẩn iframe 3D nặng đi để chống trắng xóa */
+        .bao-tang-3d-wrapper iframe {
+            display: none; 
+        }
+
+        /* Hiện màn hình phụ có nút bấm mở Tab mới */
+        .mobile-3d-fallback {
+            display: flex; 
         }
     }
   </style>
@@ -178,21 +222,20 @@
       <li><a href="#hero" class="active">Trang Chủ</a></li>
       <li><a href="#biography">Cuộc đời binh nghiệp</a></li>
       <li><a href="#legacy">Di sản & Kỷ vật</a></li>
-      <li><a href="#3d-museum">Bảo tàng 3D</a></li> <!-- Đã sửa lại link dẫn -->
+      <li><a href="#3d-museum">Bảo tàng 3D</a></li>
       <li><a href="#battles">Sa bàn trận đánh</a></li>
       <li><a href="#gallery">Thư viện ảnh</a></li>
     </ul>
   </nav>
 
-  <!-- HERO SECTION CHỈ CHỨA ẢNH NỀN HOẶC VIDEO GỐC CỦA PHONG-TRANH -->
-  <!-- Đã loại bỏ iframe baotangdvh.vercel.app bị trùng lặp ở đây để tối ưu -->
+  <!-- HERO SECTION CHỈ CHỨA ẢNH NỀN TĨNH CHO NHẸ, KHÔNG CHỨA IFRAME TOÀN MÀN HÌNH -->
   <header id="hero" style="position: relative; width: 100vw; height: 100vh; overflow: hidden; margin: 0; padding: 0; background: url('assets/dangvuhiep/assets/images/Anhcuocdoibinhnghiep 2.png') center/cover no-repeat;">
     
     <div style="position: absolute; inset: 0; background: rgba(8, 12, 20, 0.7);"></div>
 
     <div style="position: absolute; top: 50%; left: 50%; transform: translate(-50%, -50%); text-align: center; color: #fff; z-index: 10;">
         <h1 style="font-family: 'Playfair Display', serif; font-size: 4rem; color: #C9A84C; margin-bottom: 20px; text-shadow: 0 4px 20px rgba(0,0,0,0.8);">Thượng tướng Đặng Vũ Hiệp</h1>
-        <p style="font-family: 'Inter', sans-serif; font-size: 1.2rem; letter-spacing: 0.1em;">DI SẢN NGƯỜI LÍNH TÂY NGUYÊN</p>
+        <p style="font-family: 'Inter', sans-serif; font-size: 1.2rem; letter-spacing: 0.1em; text-transform: uppercase;">Di sản người lính Tây Nguyên</p>
     </div>
 
     <a href="#3d-museum" style="position: absolute; bottom: 40px; left: 50%; transform: translateX(-50%); background-color: #C9A84C; color: #080C14; padding: 15px 35px; border-radius: 50px; font-family: 'Inter', sans-serif; font-weight: 700; font-size: 16px; text-decoration: none; box-shadow: 0 5px 20px rgba(0,0,0,0.8); z-index: 100; transition: transform 0.3s ease;">
@@ -292,7 +335,7 @@
     </div>
   </section>
 
-  <!-- ================= BẢO TÀNG 3D MỚI ĐƯỢC CHÈN VÀO ĐÂY ================= -->
+  <!-- ================= BẢO TÀNG 3D MỚI NẰM TẠI ĐÂY ================= -->
   <section id="3d-museum" style="background-color: #050505; padding: 60px 0;">
     <div class="container">
         <div class="reveal" style="text-align: center; margin-bottom: 30px;">
@@ -306,8 +349,18 @@
 
         <!-- Khung Iframe chèn web cũ (bao-tang-3d.html) -->
         <div class="bao-tang-3d-wrapper reveal">
-            <!-- QUAN TRỌNG: Hãy đảm bảo file cũ đã được đổi tên thành bao-tang-3d.html và nằm cùng thư mục -->
+            <!-- Iframe 3D: Chỉ tải đầy đủ khi xem trên Máy tính -->
             <iframe src="bao-tang-3d.html" title="Bảo tàng 3D Thượng tướng Đặng Vũ Hiệp" allow="autoplay; fullscreen; vr" allowfullscreen></iframe>
+            
+            <!-- Mobile Fallback: Giao diện chống treo máy chỉ hiện trên Điện thoại -->
+            <div class="mobile-3d-fallback">
+                <i class="fa-solid fa-vr-cardboard" style="font-size: 3.5rem; color: #C9A84C; margin-bottom: 15px;"></i>
+                <h3 style="color: #E8DCC8; font-family: 'Playfair Display', serif; font-size: 1.6rem; margin-bottom: 10px;">Không gian 3D tương tác</h3>
+                <p style="color: #a8a090; font-size: 0.95rem; margin-bottom: 25px; max-width: 320px; line-height: 1.5;">Đồ họa 3D không gian lớn yêu cầu thiết bị xử lý mạnh. Vui lòng mở trong Tab mới để có trải nghiệm tốt nhất trên điện thoại của bạn.</p>
+                <a href="bao-tang-3d.html" target="_blank" class="btn-open-3d">
+                    <i class="fa-solid fa-expand" style="margin-right: 8px;"></i> Bấm để mở Bảo Tàng 3D
+                </a>
+            </div>
         </div>
     </div>
   </section>
